@@ -1,0 +1,14 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+
+
+<div class="col-md-12">
+
+	<div class="alert {% if error %}alert-danger{% else %}alert-success{% endif %}" role="alert">
+		<p>{{ informacion }}</p>
+	</div>
+
+</div>
+
+{% endblock %}

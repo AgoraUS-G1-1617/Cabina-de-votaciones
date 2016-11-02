@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset=utf-8 />
+		<title>Cabina de votación</title>
+		{% load staticfiles %}
+		<link rel="stylesheet" href="{% static "css/bootstrap.min.css" %}">
+		<script src="{% static "js/jquery.min.js" %}"></script>
+		<script src="{% static "js/bootstrap.min.js" %}"></script>
+		<script src="{% static "js/jquery.validate.min.js" %}"></script>
+	</head>
+	<body>
+		<div class="container">
+		
+			<div class="row">
+				<div class="col-md-12">
+					<img alt="Agora Voting US" src="{% static "img/logo.jpg" %}" class="img-responsive center-block" width="30%"><br>
+				</div>
+			</div>
+			
+			<div class="row">
+				<div class="col-md-8 col-md-offset-2">
+					<nav class="navbar navbar-default" role="navigation">
+						<div class="container-fluid">
+							<div class="navbar-header">
+								<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#menuComp">
+									<span class="sr-only">Expandir menú</span>
+									<span class="icon-bar"></span>
+									<span class="icon-bar"></span>
+									<span class="icon-bar"></span>
+								</button>
+							</div>
+				
+							<div class="collapse navbar-collapse" id="menuComp">
+								<ul class="nav navbar-nav col-md-12">
+									<li class="col-md-3 col-xs-12"><a href="http://localhost:8080/ADMCensus/">Censos</a></li>
+									<li class="col-md-3 col-xs-12"><a href="http://localhost:8080/CreacionAdminVotaciones/">Votaciones</a></li>
+									<li class="col-md-3 col-xs-12"><a href="http://localhost:8080/Deliberations/">Deliberaciones</a></li>
+									<li class="col-md-3 col-xs-12"><a href="http://localhost/results_view/HTML/index.html">Resultados</a></li>
+								</ul>
+							</div>
+						</div>
+					</nav>
+				</div>
+			</div>
+			
+			<div class="row" id="content">
+				{% block content %}{% endblock %}
+			</div>
+			
+			<div class="row" id="footer">
+				<div class="col-md-12 text-center">
+					<p>&copy; Cabina de votación - Agora Voting US</p>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

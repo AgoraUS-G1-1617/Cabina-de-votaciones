@@ -1,0 +1,116 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+		<div class="modal fade" id="validation_warning">
+		  <div class="modal-dialog">
+		    <div class="modal-content">
+		      <div class="modal-header alert-danger">
+		        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Cerrar</span></button>
+		        <h4 class="modal-title">¡Error!</h4>
+		      </div>
+		      <div class="modal-body">
+		        <p>Tienes que responder a todas las preguntas para poder enviar el voto</p>
+		      </div>
+		      <div class="modal-footer">
+		        <button type="button" class="btn btn-default" data-dismiss="modal">Aceptar</button>
+		      </div>
+		    </div><!-- /.modal-content -->
+		  </div><!-- /.modal-dialog -->
+		</div><!-- /.modal -->
+
+		<div class="col-md-12" style="margin-top:50px">
+	        <form id="pollForm" action="/cabinarecepcion/" method="post">
+	            <input type="hidden" name="id_poll" value="{{ poll.id }}"/>
+	            <div class="row">
+	            	<div class="col-md-12">
+	            		<!-- <div class="alert alert-danger" id="validation_warning" style="display:none;"> 
+	            			<h4>Tienes que votar todas las preguntas</h4>
+	            		</div> -->
+	            	</div>
+	            	<div class="col-md-12">
+	            		<!-- <div><label>Id: </label>{{ poll.id  }}</div> -->
+	            		<div><label>Fecha de inicio: </label>{{ poll.startDate}}</div>
+	            		<div><label>Fecha límite: </label>{{ poll.endDate }}</div>
+	            		<div><h4>Descripción: {{ poll.description }}</h4></div>
+	            		<div><h2>Estas son las preguntas que debe responder: </h2></div>
+	            	</div>
+	            </div>
+	            {% for question in questions %}
+	            	<div class="row">
+	            		<div class="col-md-12">
+		            		<div class="panel panel-default" id="{{ question.id }}">
+		            			<div class="panel-heading">
+		            				<h3 class="panel-title">Pregunta nº {{ forloop.counter }}</h3>
+		            				<div class="qstatus_ko" id="qstatus_ko_{{ question.id }}"><span class="glyphicon glyphicon-remove text-danger"></span> Aún no has votado</div>
+		            				<div class="qstatus_ok" id="qstatus_ok_{{ question.id }}"><span class="glyphicon glyphicon-ok text-success"></span> Ya has votado</div>
+								</div>
+								<div class="panel-body">
+									<p>{{ question.text }}</p>
+									<div class="row">
+										<div class="col-md-6 col-xs-12">
+											<button type="button" class="btn btn-large btn-default btn-voto btn-block btn_{{ question.id }}"  name="{{ question.id }}" value="si"><span class="glyphicon glyphicon-thumbs-up"></span> Sí</button>
+											<input class="radiocabina" name="{{ question.id }}" id="input_si{{ question.id }}" value="SI" required="required" type="radio">
+										</div>
+										
+										<div class="col-md-6 col-xs-12">
+											<button type="button" class="btn btn-large btn-default btn-voto btn-block btn_{{ question.id }}"  name="{{ question.id }}" value="no"><span class="glyphicon glyphicon-thumbs-down"></span> No</button>
+											<input class="radiocabina" name="{{ question.id }}" id="input_no{{ question.id }}" value="NO"  required="required" type="radio">
+										</div>
+									</div>
+								</div>
+							</div>
+	            		</div>
+	            	</div>                
+	            {% endfor %}
+	            <div class="row">
+	            	<div class="col-md-3">
+	            		<button type="button" class="btn btn-detault btn-warning btn-block" onclick="checkForm()">Confirmar</button>	
+	            	</div>
+	            </div>
+	        </form>
+		</div>
+	
+	<script type="text/javascript">
+		$( ".btn-voto" ).on( "click", function() {
+			var related_id = $(this).attr('name');
+		
+			$(".btn_" +related_id).removeClass("btn-info");
+
+			$("#input_"+$(this).val()+related_id).prop('checked', true);
+			$(this).addClass("btn btn-info");
+			$("#" + related_id).removeClass("panel-danger");
+			$("#" + related_id).addClass("panel-success");
+			$("#qstatus_ko_" + related_id).hide();
+			$("#qstatus_ok_" + related_id).show();
+		});
+		$(function(){
+			$(".panel").addClass("panel-danger");
+			$(".qstatus_ko").show();
+			$(".qstatus_ok").hide();
+			$(".radiocabina").hide();
+		});
+		
+		function checkForm(){
+			var $form = $('#pollForm');
+			var error = 0;
+			
+			// check if radio groups are selected
+			$form.find('input:radio').each(function(){
+					
+				var radioGroupName = $(this).attr('name'),
+				$radioGroup = $form.find('input:radio[name='+radioGroupName+']');
+					 
+				// check only if radio group exists
+				if( $radioGroup.size() ){
+					if( !$radioGroup.is(':checked') ) error = 1;
+				}
+			});
+			// handle error
+			if(error){
+				$("#validation_warning").modal();
+			}else{
+				$form.submit();
+			}
+		}
+	</script>
+{% endblock %}	
