@@ -2,6 +2,7 @@
 from rest_framework.decorators import api_view
 from cabina_app.services import *
 from django.shortcuts import render
+from cabina_app.dbConnect import *
 
 
 @api_view(['GET'])
@@ -30,6 +31,15 @@ def recibe_id_votacion(request, id_poll):
         return render(request, "informacion.html", {'informacion': informacion, 'error': True})
 
     return render(request, "index.html", {'poll': poll, 'questions': poll.questions})
+
+'Simula la renderización de index mediante un poll que viene de base de datos'
+'actualmente, dado que Poll no tiene atributo questions y que éste está en Question, lo que se recupera es una pregunta de la Poll'
+'This is for developers tests purposes only'
+@api_view(['GET'])
+def recibe_id_votacion_fromdb(request, id_question):
+    question = get_Question(id_question)
+    #poll = get_Poll(id_poll)
+    return render(request, "index.html", {'poll': question.questions, 'questions': [question]})
 
 
 @api_view(['POST'])
