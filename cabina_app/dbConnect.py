@@ -1,9 +1,10 @@
 from cabina_app.models import User, Poll, Vote, Question
+from django.shortcuts import get_object_or_404
 import traceback
 
 def get_User(user_id):
     try:
-        newUser = User.objects.get(id=user_id)
+        newUser = get_object_or_404(pk=user_id)
     except Exception as e:
         print "No se pudo extraer el usuario"
         raise
@@ -12,7 +13,7 @@ def get_User(user_id):
 
 def get_Poll(poll_id):
     try:
-        newPoll = Poll.objects.get(id=poll_id)
+        newPoll = get_object_or_404(Poll,pk=poll_id)
         print(newPoll.__unicode__())
     except Exception as e:
         print "No se pudo extraer la encuesta"
@@ -22,7 +23,8 @@ def get_Poll(poll_id):
 
 def get_Question(question_id):
     try:
-        newQuestion = Question.objects.get(id=question_id)
+
+        newQuestion = get_object_or_404(pk=question_id)
     except Exception as e:
         print "No se pudo extraer la pregunta"
         traceback.print_exc()
@@ -32,7 +34,7 @@ def get_Question(question_id):
 
 def get_Vote(vote_id):
     try:
-        newVote = Vote.objects.get(id=vote_id)
+        newVote = get_object_or_404(pk=vote_id)
     except Exception as e:
         print "No se pudo extraer el voto"
         raise
