@@ -15,7 +15,7 @@ def verify_user(request):
     try:
         user = request.COOKIES.get('user')
         token = request.COOKIES.get('token')
-        r = requests.get("http://localhost/auth/api/checkTokenUser?user=" + str(user) + "&token=" + str(token))
+        r = requests.get("https://beta.authb.agoraus1.egc.duckdns.org/auth/api/checkTokenUser?user=" + str(user) + "&token=" + str(token))
         json_autenticacion = r.json()
         result = False
         if json_autenticacion['valid'] is True:
@@ -30,7 +30,7 @@ def can_vote(request, id_poll):
         user = request.COOKIES.get('user')
         token = request.COOKIES.get('token')
         cookies = dict(user=user, token=token)
-        r = requests.get("http://localhost:8080/ADMCensus/census/canVote.do?idVotacion=" + str(id_poll),
+        r = requests.get("https://censos.agoraus1.egc.duckdns.org/ADMCensus/census/canVote.do?idVotacion=" + str(id_poll),
                          cookies=cookies)
         json_censo = r.json()
         result = False
@@ -70,7 +70,7 @@ def save_vote(encryption_vote, id_poll):
 
 def get_poll(id_poll):
     try:
-        r = requests.get('http://localhost:8080/CreacionAdminVotaciones/vote/survey.do?id=' + str(id_poll))
+        r = requests.get('https://cavotacion.agoraus1.egc.duckdns.org/vote/survey.do?id=' + str(id_poll))
         json_poll = json.dumps(r.json())
         poll = json.loads(json_poll, object_hook=json_as_poll)
     except ValueError:
@@ -81,7 +81,7 @@ def get_poll(id_poll):
 def get_user(request):
     try:
         username = request.COOKIES.get('user')
-        r = requests.get("http://localhost/auth/api/getUser?user=" + username)
+        r = requests.get("https://beta.authb.agoraus1.egc.duckdns.org/auth/api/getUser?user=" + username)
         json_auth = json.dumps(r.json())
         user = json.loads(json_auth, object_hook=json_as_user)
     except ValueError:
@@ -111,7 +111,7 @@ def update_user(request, id_poll):
         user = request.COOKIES.get('user')
         token = request.COOKIES.get('token')
         cookies = dict(user=user, token=token)
-        r = requests.get("http://localhost:8080/ADMCensus/census/updateUser.do?idVotacion=" + str(id_poll),
+        r = requests.get("https://censos.agoraus1.egc.duckdns.org/ADMCensus/census/updateUser.do?idVotacion=" + str(id_poll),
                          cookies=cookies)
         json_censo = r.json()
         result = False
@@ -163,6 +163,10 @@ def decrypt_rsa(crypto, private_key):
 
 
 def get_key_rsa(id_votacion):
+
+    #-----------------------------------FALTA URL DE VERIFICACIÓN
+
+
     web = urllib2.urlopen("http://www.egcprueba.esy.es/getKeys.php?id=" + str(id_votacion))
     result = False
     try:
