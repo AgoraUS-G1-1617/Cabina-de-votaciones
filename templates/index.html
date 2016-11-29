@@ -1,6 +1,7 @@
 {% extends 'layout.html' %}
 
 {% block content %}
+	<body onload="inicio()">
 		<div class="modal fade" id="validation_warning">
 		  <div class="modal-dialog">
 		    <div class="modal-content">
@@ -69,8 +70,11 @@
 	            </div>
 	        </form>
 		</div>
+		</body>
 	
 	<script type="text/javascript">
+		var votacion;
+
 		$( ".btn-voto" ).on( "click", function() {
 			var related_id = $(this).attr('name');
 		
@@ -82,13 +86,63 @@
 			$("#" + related_id).addClass("panel-success");
 			$("#qstatus_ko_" + related_id).hide();
 			$("#qstatus_ok_" + related_id).show();
+
+			encodeCookie(related_id, $(this).val());
 		});
 		$(function(){
 			$(".panel").addClass("panel-danger");
-			$(".qstatus_ko").show();
+			$(".qstatus_ko").show();-$(this).val()
 			$(".qstatus_ok").hide();
 			$(".radiocabina").hide();
 		});
+
+		function encodeCookie(questionId, option){
+			votacion = document.getElementsByName("id_poll")[0].value+"="+questionId+"-"+option+",";
+			document.cookie = votacion;
+		};
+
+		function inicio(){
+			var encuestas = document.cookie.split(';');
+			var existe = false;
+
+			for(var i=0;i<encuestas.length;i++){
+				var id_poll = encuestas[i].split('=')[0];
+
+				if(id_poll == document.getElementsByName("id_poll")[0].value){
+					existe = true;
+					votacion = encuestas[i];
+					var preguntasColec = encuestas[i].split('=')[1];
+					var preguntas = preguntasColec.split(',');
+
+					for(var j=0;j<preguntas.length;j++){
+						var pregunta = preguntas[j].split('-')[0];
+						var respuesta = preguntas[j].split('-')[1];
+
+						if(respuesta == "si"){
+							var opcion = document.getElementsByName(pregunta)[0];
+							opcion.className += " btn-info";
+							$("#" + pregunta).removeClass("panel-danger");
+							$("#" + pregunta).addClass("panel-success");
+							$("#qstatus_ko_" + pregunta).hide();
+							$("#qstatus_ok_" + pregunta).show();
+						}
+						else if(respuesta == "no"){
+							var opcion = document.getElementsByName(pregunta)[2];
+							opcion.className += " btn-info";
+							$("#" + pregunta).removeClass("panel-danger");
+							$("#" + pregunta).addClass("panel-success");
+							$("#qstatus_ko_" + pregunta).hide();
+							$("#qstatus_ok_" + pregunta).show();
+						}
+					}
+				}
+			}
+
+			if(!existe){
+				votacion = document.getElementsByName("id_poll")[0]+"=";
+				document.cookie = ";"+votacion;
+			}
+		}
 		
 		function checkForm(){
 			var $form = $('#pollForm');
