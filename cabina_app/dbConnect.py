@@ -24,7 +24,7 @@ def get_Question(question_id):
     try:
         newQuestion = Question.objects.get(id=question_id)
     except Exception as e:
-        print "No se pudo extraer la encuesta por pregunta"
+        print "No se pudo extraer la pregunta"
         traceback.print_exc()
         raise
 
