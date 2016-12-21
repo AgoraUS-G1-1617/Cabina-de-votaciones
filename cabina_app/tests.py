@@ -4,12 +4,12 @@ when you run "manage.py test".
 
 Replace this with more appropriate tests for your application.
 """
-import os
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "cabina_agora_us.settings")
+#import os
+#os.environ.setdefault("DJANGO_SETTINGS_MODULE", "cabina_agora_us.settings")
 #from django.test import TestCase
 import unittest
-from cabina_app.dbConnect import *
-from cabina_app.models import *
+#from cabina_app.dbConnect import *
+#from cabina_app.models import *
 
 
 
