@@ -19,7 +19,7 @@ class BasicTests(unittest.TestCase):
         """
         Tests that 1 + 1 always equals 2. For correct configuration assertion
         """
-        self.assertEqual(1 + 1, 2)
+        self.assertEqual(1 + 1, 3)
 
     #def vote_basic_test(self):
     #    """
