@@ -8,7 +8,7 @@ from cabina_app.dbConnect import *
 @api_view(['GET'])
 def recibe_id_votacion(request, id_poll = None):
         if(id_poll is None):
-            informacion = "No se ha recibido ninguna votacion"
+            informacion = "Error: No se ha recibido ninguna votacion"
             return render(request, "informacion.html", {'informacion': informacion, 'error': True})
         # Comprobar que el identificador de la votacion es numerico
         try:
