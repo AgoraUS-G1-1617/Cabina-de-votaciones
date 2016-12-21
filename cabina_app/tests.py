@@ -21,11 +21,11 @@ class BasicTests(unittest.TestCase):
         """
         self.assertEqual(1 + 1, 2)
 
-    def vote_basic_test(self):
-        """
-        Test basic creation of a Vote
-        """
-        VoteIdentifier = 26
-        poll = get_Poll(VoteIdentifier)
-        polls = Poll.objects.all()
-        self.assertTrue(polls.contains(poll) )
+    #def vote_basic_test(self):
+    #    """
+    #    Test basic creation of a Vote
+    #    """
+    #    VoteIdentifier = 26
+    #    poll = get_Poll(VoteIdentifier)
+    #    polls = Poll.objects.all()
+    #    self.assertTrue(polls.contains(poll) )
