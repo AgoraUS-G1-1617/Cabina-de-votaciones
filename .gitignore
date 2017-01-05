@@ -1,6 +1,4 @@
 # Pycharm
-/.idea
 *.pyc
-*.db
-#PyCharm
+*.db#PyCharm
 /.idea
