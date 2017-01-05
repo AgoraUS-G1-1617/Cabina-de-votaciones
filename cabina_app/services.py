@@ -15,7 +15,7 @@ def verify_user(request):
     try:
         user = request.COOKIES.get('user')
         token = request.COOKIES.get('token')
-        r = requests.get("https://beta.authb.agoraus1.egc.duckdns.org/auth/api/checkTokenUser?user=" + str(user) + "&token=" + str(token))
+        r = requests.get("https://authb.agoraus1.egc.duckdns.org/auth/api/checkTokenUser?user=" + str(user) + "&token=" + str(token))
         json_autenticacion = r.json()
         result = False
         if json_autenticacion['valid'] is True:
@@ -81,7 +81,7 @@ def get_poll(id_poll):
 def get_user(request):
     try:
         username = request.COOKIES.get('user')
-        r = requests.get("https://beta.authb.agoraus1.egc.duckdns.org/auth/api/getUser?user=" + username)
+        r = requests.get("https://authb.agoraus1.egc.duckdns.org/auth/api/getUser?user=" + username)
         json_auth = json.dumps(r.json())
         user = json.loads(json_auth, object_hook=json_as_user)
     except ValueError:
