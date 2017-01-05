@@ -71,13 +71,13 @@
 	        </form>
 		</div>
 		</body>
-	
+
 	<script type="text/javascript">
-		var votacion;
+		var voto;
 
 		$( ".btn-voto" ).on( "click", function() {
 			var related_id = $(this).attr('name');
-		
+
 			$(".btn_" +related_id).removeClass("btn-info");
 
 			$("#input_"+$(this).val()+related_id).prop('checked', true);
@@ -88,6 +88,7 @@
 			$("#qstatus_ok_" + related_id).show();
 
 			encodeCookie(related_id, $(this).val());
+			console.log(document.cookie);
 		});
 		$(function(){
 			$(".panel").addClass("panel-danger");
@@ -97,63 +98,68 @@
 		});
 
 		function encodeCookie(questionId, option){
-			votacion = document.getElementsByName("id_poll")[0].value+"="+questionId+"-"+option+",";
-			document.cookie = votacion;
-		};
+			var votacion = document.cookie.split(';');
+			var encontrado = false;
 
-		function inicio(){
-			var encuestas = document.cookie.split(';');
-			var existe = false;
+			for(var j=1;j<votacion.length;j++){
+				var pregunta = votacion[j].split('=')[0];
+				var respuesta = votacion[j].split('=')[1];
 
-			for(var i=0;i<encuestas.length;i++){
-				var id_poll = encuestas[i].split('=')[0];
-
-				if(id_poll == document.getElementsByName("id_poll")[0].value){
-					existe = true;
-					votacion = encuestas[i];
-					var preguntasColec = encuestas[i].split('=')[1];
-					var preguntas = preguntasColec.split(',');
-
-					for(var j=0;j<preguntas.length;j++){
-						var pregunta = preguntas[j].split('-')[0];
-						var respuesta = preguntas[j].split('-')[1];
-
-						if(respuesta == "si"){
-							var opcion = document.getElementsByName(pregunta)[0];
-							opcion.className += " btn-info";
-							$("#" + pregunta).removeClass("panel-danger");
-							$("#" + pregunta).addClass("panel-success");
-							$("#qstatus_ko_" + pregunta).hide();
-							$("#qstatus_ok_" + pregunta).show();
-						}
-						else if(respuesta == "no"){
-							var opcion = document.getElementsByName(pregunta)[2];
-							opcion.className += " btn-info";
-							$("#" + pregunta).removeClass("panel-danger");
-							$("#" + pregunta).addClass("panel-success");
-							$("#qstatus_ko_" + pregunta).hide();
-							$("#qstatus_ok_" + pregunta).show();
-						}
-					}
+				if(pregunta == questionId){
+					document.cookie = pregunta+"="+option;
+					encontrado = true;
 				}
 			}
 
-			if(!existe){
-				votacion = document.getElementsByName("id_poll")[0]+"=";
-				document.cookie = ";"+votacion;
+			if(!encontrado){
+				document.cookie = questionId+"="+option;
 			}
+		};
+
+		function inicio(){
+			var votacion = document.cookie.split(';');
+			var id_poll = votacion[0].split('=')[1];
+
+			if(id_poll == document.getElementsByName("id_poll")[0].value){
+				for(var j=1;j<votacion.length;j++){
+					var pregunta = votacion[j].split('=')[0];
+					pregunta = pregunta.trim();
+					var respuesta = votacion[j].split('=')[1];
+					if(respuesta == "si"){
+						var opcion = document.getElementsByName(pregunta)[0];
+						opcion.className += " btn-info";
+						$("#" + pregunta).removeClass("panel-danger");
+						$("#" + pregunta).addClass("panel-success");
+						$("#qstatus_ko_" + pregunta).hide();
+						$("#qstatus_ok_" + pregunta).show();
+					}
+					else if(respuesta == "no"){
+						var opcion = document.getElementsByName(pregunta)[2];
+						opcion.className += " btn-info";
+						$("#" + pregunta).removeClass("panel-danger");
+						$("#" + pregunta).addClass("panel-success");
+						$("#qstatus_ko_" + pregunta).hide();
+						$("#qstatus_ok_" + pregunta).show();
+					}
+				}
+			}
+			else{
+				document.cookie += '=;expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+				document.cookie = 'encuesta='+document.getElementsByName("id_poll")[0].value;
+			}
+			console.log(document.cookie);
 		}
-		
+
 		function checkForm(){
 			var $form = $('#pollForm');
 			var error = 0;
-			
+
 			// check if radio groups are selected
 			$form.find('input:radio').each(function(){
-					
+
 				var radioGroupName = $(this).attr('name'),
 				$radioGroup = $form.find('input:radio[name='+radioGroupName+']');
-					 
+
 				// check only if radio group exists
 				if( $radioGroup.size() ){
 					if( !$radioGroup.is(':checked') ) error = 1;
