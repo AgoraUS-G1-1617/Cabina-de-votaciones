@@ -44,4 +44,9 @@ class Question(models.Model):
     poll_reference = models.ForeignKey(Poll, blank=False)
 
     def __unicode__(self):
-        return str(self.id) + " " + str(self.text) + " " + str(self.questions)
+        return str(self.question_id) + " " + str(self.text) + " " + str(self.questions)
+
+class Answer(models.Model):
+    answer_id = models.IntegerField(blank=False, primary_key= True)
+    text = models.CharField(max_length=250, blank=False)
+    question_reference = models.ForeignKey(Question, blank =False)

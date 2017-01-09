@@ -8,7 +8,7 @@ from Crypto.PublicKey.RSA import importKey
 import requests
 import rsa
 
-from cabina_app.models import User, Poll, Vote, Question
+from cabina_app.models import User, Poll, Vote, Question, Answer
 
 
 def verify_user(request):
@@ -140,6 +140,16 @@ def json_as_poll(json_poll):
         question.question_id = pregunta['id_pregunta']
         question.text = pregunta['texto_pregunta']
         question.poll_reference = poll
+
+        for opcion in pregunta['opciones']:
+            answer = Answer()
+            answer.answer_id = opcion['id_opcion']
+            answer.text = opcion['texto_opcion']
+            answer.question_reference = question
+
+            question.answer_set.add(answer)
+
+
         poll.question_set.add(question)
 
     poll.save()

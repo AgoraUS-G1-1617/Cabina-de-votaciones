@@ -39,24 +39,29 @@
 	            {% for question in questions %}
 	            	<div class="row">
 	            		<div class="col-md-12">
-		            		<div class="panel panel-default" id="{{ question.id }}">
+		            		<div class="panel panel-default" id="{{ question.question_id }}">
 		            			<div class="panel-heading">
 		            				<h3 class="panel-title">Pregunta nº {{ forloop.counter }}</h3>
-		            				<div class="qstatus_ko" id="qstatus_ko_{{ question.id }}"><span class="glyphicon glyphicon-remove text-danger"></span> Aún no has votado</div>
-		            				<div class="qstatus_ok" id="qstatus_ok_{{ question.id }}"><span class="glyphicon glyphicon-ok text-success"></span> Ya has votado</div>
+		            				<div class="qstatus_ko" id="qstatus_ko_{{ question.question_id }}"><span class="glyphicon glyphicon-remove text-danger"></span> Aún no has votado</div>
+		            				<div class="qstatus_ok" id="qstatus_ok_{{ question.question_id }}"><span class="glyphicon glyphicon-ok text-success"></span> Ya has votado</div>
 								</div>
 								<div class="panel-body">
 									<p>{{ question.text }}</p>
 									<div class="row">
-										<div class="col-md-6 col-xs-12">
-											<button type="button" class="btn btn-large btn-default btn-voto btn-block btn_{{ question.id }}"  name="{{ question.id }}" value="si"><span class="glyphicon glyphicon-thumbs-up"></span> Sí</button>
-											<input class="radiocabina" name="{{ question.id }}" id="input_si{{ question.id }}" value="SI" required="required" type="radio">
-										</div>
+
+										<p>{% for answer in question.answer_set.all %}</p>
+
+											<div class="col-md-6 col-xs-12">
+												<button type="button" class="btn btn-large btn-default btn-voto btn-block btn_{{ question.question_id }}"  name="{{ question.question_id }}" value="si"><span class="glyphicon glyphicon-thumbs-up"></span> {{ answer.text }}</button>
+												<input class="radiocabina" name="{{ question.question_id }}" id="input{{ question.question_id }}" value="{{ answer.answer_id}}" required="required" type="radio">
+											</div>
+
+											{% endfor %}
 										
-										<div class="col-md-6 col-xs-12">
+										<!--<div class="col-md-6 col-xs-12">
 											<button type="button" class="btn btn-large btn-default btn-voto btn-block btn_{{ question.id }}"  name="{{ question.id }}" value="no"><span class="glyphicon glyphicon-thumbs-down"></span> No</button>
 											<input class="radiocabina" name="{{ question.id }}" id="input_no{{ question.id }}" value="NO"  required="required" type="radio">
-										</div>
+										</div> -->
 									</div>
 								</div>
 							</div>
@@ -80,7 +85,7 @@
 
 			$(".btn_" +related_id).removeClass("btn-info");
 
-			$("#input_"+$(this).val()+related_id).prop('checked', true);
+			$("#input"+$(this).val()+related_id).prop('checked', true);
 			$(this).addClass("btn btn-info");
 			$("#" + related_id).removeClass("panel-danger");
 			$("#" + related_id).addClass("panel-success");
@@ -88,7 +93,6 @@
 			$("#qstatus_ok_" + related_id).show();
 
 			encodeCookie(related_id, $(this).val());
-			console.log(document.cookie);
 		});
 		$(function(){
 			$(".panel").addClass("panel-danger");
@@ -125,6 +129,7 @@
 					var pregunta = votacion[j].split('=')[0];
 					pregunta = pregunta.trim();
 					var respuesta = votacion[j].split('=')[1];
+					console.log("respuesta: " + respuesta);
 					if(respuesta == "si"){
 						var opcion = document.getElementsByName(pregunta)[0];
 						opcion.className += " btn-info";
@@ -147,7 +152,6 @@
 				document.cookie += '=;expires=Thu, 01 Jan 1970 00:00:01 GMT;';
 				document.cookie = 'encuesta='+document.getElementsByName("id_poll")[0].value;
 			}
-			console.log(document.cookie);
 		}
 
 		function checkForm(){

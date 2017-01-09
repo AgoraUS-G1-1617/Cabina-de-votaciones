@@ -31,6 +31,7 @@ def recibe_id_votacion(request, id_poll = None):
             informacion = "El identificador de la votación es erronea"
 
         if informacion is None:
+            print "HOla, te voy a mostrar las questions"
             respuesta = render(request, "index.html", {'poll': poll, 'questions': poll.question_set.all()})
         else:
             respuesta =  render(request, "informacion.html", {'informacion': informacion, 'error': True})
