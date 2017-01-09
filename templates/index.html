@@ -125,21 +125,18 @@
 					var pregunta = votacion[j].split('=')[0];
 					pregunta = pregunta.trim();
 					var respuesta = votacion[j].split('=')[1];
-					if(respuesta == "si"){
-						var opcion = document.getElementsByName(pregunta)[0];
-						opcion.className += " btn-info";
-						$("#" + pregunta).removeClass("panel-danger");
-						$("#" + pregunta).addClass("panel-success");
-						$("#qstatus_ko_" + pregunta).hide();
-						$("#qstatus_ok_" + pregunta).show();
-					}
-					else if(respuesta == "no"){
-						var opcion = document.getElementsByName(pregunta)[2];
-						opcion.className += " btn-info";
-						$("#" + pregunta).removeClass("panel-danger");
-						$("#" + pregunta).addClass("panel-success");
-						$("#qstatus_ko_" + pregunta).hide();
-						$("#qstatus_ok_" + pregunta).show();
+
+					var i = 0;
+					while(i < document.getElementsByName(pregunta).length){
+						if(respuesta == document.getElementsByName(pregunta)[i].value){
+							var opcion = document.getElementsByName(pregunta)[i];
+							opcion.className += " btn-info";
+							$("#" + pregunta).removeClass("panel-danger");
+							$("#" + pregunta).addClass("panel-success");
+							$("#qstatus_ko_" + pregunta).hide();
+							$("#qstatus_ok_" + pregunta).show();
+						}
+						i += 2;
 					}
 				}
 			}
