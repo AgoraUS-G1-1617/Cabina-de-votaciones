@@ -11,7 +11,7 @@ urlpatterns = patterns('',
                        #url(r'^/$', include('cabina_app.urls')),
                        #url(r'^(?P<id_poll>\d+)/$',recibe_id_votacion),
                        #Simula la renderizacion de un index a partir de un id de Question
-                       url(r'^votacion/(?P<id_question>\w+)/$', recibe_id_votacion_fromdb),
+                       url(r'^votacion/(?P<id_poll>\w+)/$', recibe_id_votacion),
                        url(r'^cabinarecepcion/$', cabinarecepcion),
                        url(r'', include('cabina_app.urls')),
 

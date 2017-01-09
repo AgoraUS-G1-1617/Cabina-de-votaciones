@@ -8,7 +8,7 @@ from Crypto.PublicKey.RSA import importKey
 import requests
 import rsa
 
-from cabina_app.models import User, Poll, Vote
+from cabina_app.models import User, Poll, Vote, Question, Answer
 
 
 def verify_user(request):
@@ -70,9 +70,11 @@ def save_vote(encryption_vote, id_poll):
 
 def get_poll(id_poll):
     try:
-        r = requests.get('https://cavotacion.agoraus1.egc.duckdns.org/vote/survey.do?id=' + str(id_poll))
+        r = requests.get('https://recuento.agoraus1.egc.duckdns.org/api/verVotacion?idVotacion='+ str(id_poll)+'&detallado=si' )
+        
         json_poll = json.dumps(r.json())
-        poll = json.loads(json_poll, object_hook=json_as_poll)
+        #poll = json.loads(json_poll, object_hook=json_as_poll)
+        poll = json_as_poll(json_poll)
     except ValueError:
         poll = None
     return poll
@@ -124,7 +126,34 @@ def update_user(request, id_poll):
 
 def json_as_poll(json_poll):
     poll = Poll()
-    poll.__dict__.update(json_poll)
+    x = json.loads(json_poll)
+
+    poll.id = x['votacion']['id_votacion']
+    poll.title = x['votacion']['titulo']
+    poll.endDate = x['votacion']['fecha_cierre'][0:10]
+    poll.startDate = x['votacion']['fecha_creacion'][0:10]
+    poll.description = x['votacion']['titulo']
+
+
+    for pregunta in x['votacion']['preguntas']:
+        question = Question()
+        question.question_id = pregunta['id_pregunta']
+        question.text = pregunta['texto_pregunta']
+        question.poll_reference = poll
+
+        for opcion in pregunta['opciones']:
+            answer = Answer()
+            answer.answer_id = opcion['id_opcion']
+            answer.text = opcion['texto_opcion']
+            answer.question_reference = question
+
+            question.answer_set.add(answer)
+
+
+        poll.question_set.add(question)
+
+    poll.save()
+
     return poll
 
 
