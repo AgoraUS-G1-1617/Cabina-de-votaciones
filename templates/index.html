@@ -24,7 +24,7 @@
 	            <input type="hidden" name="id_poll" value="{{ poll.id }}"/>
 	            <div class="row">
 	            	<div class="col-md-12">
-	            		<!-- <div class="alert alert-danger" id="validation_warning" style="display:none;"> 
+	            		<!-- <div class="alert alert-danger" id="validation_warning" style="display:none;">
 	            			<h4>Tienes que votar todas las preguntas</h4>
 	            		</div> -->
 	            	</div>
@@ -48,20 +48,19 @@
 								<div class="panel-body">
 									<p>{{ question.text }}</p>
 									<div class="row">
+										<div class="btn-group" data-toggle="buttons">
 
-										<p>{% for answer in question.answer_set.all %}</p>
+										{% for answer in question.answer_set.all %}
 
 											<div class="col-md-6 col-xs-12">
-												<button type="button" class="btn btn-large btn-default btn-voto btn-block btn_{{ question.question_id }}"  name="{{ question.question_id }}" value="si"><span class="glyphicon glyphicon-thumbs-up"></span> {{ answer.text }}</button>
-												<input class="radiocabina" name="{{ question.question_id }}" id="input{{ question.question_id }}" value="{{ answer.answer_id}}" required="required" type="radio">
-											</div>
+
+											 <label class="col-md-6 col-xs-12 btn btn-large btn-default btn-voto btn-block btn_{{ question.question_id }}"  name="{{ question.question_id }}" value="{{ answer.answer_id}}">
+												<input class="radiocabina" type="radio" name="group_{{ question.question_id }}" id="input{{ question.question_id }}" value="{{ answer.answer_id}}" autocomplete="off"> {{ answer.text }} <br>
+											  </label>
+												</div>
 
 											{% endfor %}
-										
-										<!--<div class="col-md-6 col-xs-12">
-											<button type="button" class="btn btn-large btn-default btn-voto btn-block btn_{{ question.id }}"  name="{{ question.id }}" value="no"><span class="glyphicon glyphicon-thumbs-down"></span> No</button>
-											<input class="radiocabina" name="{{ question.id }}" id="input_no{{ question.id }}" value="NO"  required="required" type="radio">
-										</div> -->
+											</div>
 									</div>
 								</div>
 							</div>
@@ -166,7 +165,10 @@
 
 				// check only if radio group exists
 				if( $radioGroup.size() ){
-					if( !$radioGroup.is(':checked') ) error = 1;
+
+					if( !$radioGroup.is(':checked')){
+						error = 1;
+					}
 				}
 			});
 			// handle error
