@@ -5,6 +5,8 @@ import urllib
 import urllib2
 from Crypto.PublicKey.RSA import importKey
 
+import subprocess
+
 import requests
 import rsa
 
