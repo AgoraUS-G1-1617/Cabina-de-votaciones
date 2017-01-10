@@ -15,16 +15,12 @@ class User(models.Model):
 
 
 class Vote(models.Model):
-    id = models.IntegerField(blank=False, primary_key=True)
-    id_poll = models.IntegerField(blank=False)
-    age = models.IntegerField(blank=False)
-    genre = models.CharField(max_length=6, blank=False)
-    autonomous_community = models.CharField(max_length=250, blank=False)
-    answers = models.TextField(blank=False)
+    token = models.CharField(max_length=100000,blank=False)
+    idPregunta = models.IntegerField(blank=False)
+    voto = models.CharField(max_length=100000,blank=False)
 
     def __unicode__(self):
-        return str(self.id) + " " + str(self.id_poll) + str(
-            self.age) + " " + self.genre + " " + self.autonomous_community + " " + self.answers
+        return str(self.token) + ", " + str(self.idPregunta) + ", " + str(self.voto)
 
 
 class Poll(models.Model):

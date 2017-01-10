@@ -53,6 +53,7 @@ def cabinarecepcion(request):
     error = True
 
     if request.method == 'POST':
+        token = "alerodrom:5ca38d5a73c0f04c4f7cc1c35acc7a47"
 
         post_data = request.POST
 
@@ -65,14 +66,14 @@ def cabinarecepcion(request):
 
         #Construir votación y usuario
         poll = get_poll(id_poll)
-        user = get_user(request)
+        user = get_user(token)
 
         # Comprobar que dicho usuario autenticado es valido
-        if not verify_user(request):
+        if not verify_user(token):
             informacion = "El usuario es erroneo, autenticate de nuevo"
         # Comprobar que el usuario autenticado puede votar en dicha votacion
-        elif not can_vote(request, id_poll):
-            informacion = "Usted no puede votar en esta votación"
+        #elif not can_vote(token):
+           #informacion = "Usted no puede votar en esta votación"
         # Comprobar la votacion
         elif poll is None:
             informacion = "El identificador de la votación es erronea"
@@ -80,26 +81,25 @@ def cabinarecepcion(request):
         elif user is None:
             informacion = "El usuario es erroneo"
         # Construir voto
+        #else:
+        votos_encripatos = get_vote(token, post_data)
+
+        # Cifrar el voto
+        if votos_encripatos is None:
+            informacion = "La contraseña proporcionada es demasiada corta como para cifrar dicho voto. Usted no podrá " \
+                        "votar en esta votación hasta que se arregle dicho fallo.\n\nPongase en contacto con " \
+                        "verificación."
+
+        # Actualizar el estado de la votacion del usuario
+        #elif not update_user(token, poll.id):
+            #informacion = "No se ha podido actualizar el estado de la votación del usuario"
         else:
-            vote = get_vote(poll, user, post_data)
-
-            # Cifrar el voto
-            encryption_vote = get_encryption_vote(vote)
-            if encryption_vote is False:
-                informacion = "La contraseña proporcionada es demasiada corta como para cifrar dicho voto. Usted no podrá " \
-                            "votar en esta votación hasta que se arregle dicho fallo.\n\nPongase en contacto con " \
-                            "verificación."
-
-            # Actualizar el estado de la votacion del usuario
-            elif not update_user(request, poll.id):
-                informacion = "No se ha podido actualizar el estado de la votación del usuario"
+            # Almacenar el voto
+            if not save_vote(votos_encripatos):
+                informacion = "No se ha podido almacenar el voto"
             else:
-                # Almacenar el voto
-                if not save_vote(encryption_vote, poll.id):
-                    informacion = "No se ha podido almacenar el voto"
-                else:
-                    error = False
-                    informacion = "Votacion guardada con éxito"
+                error = False
+                informacion = "Votacion guardada con éxito"
     else:
         informacion = "Lo sentimos, el metodo solicitado no esta disponible"
 

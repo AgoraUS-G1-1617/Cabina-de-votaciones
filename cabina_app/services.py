@@ -6,18 +6,16 @@ import urllib2
 from Crypto.PublicKey.RSA import importKey
 
 import subprocess
-
 import requests
 import rsa
 
 from cabina_app.models import User, Poll, Vote, Question, Answer
 
 
-def verify_user(request):
+def verify_user(token):
     try:
-        user = request.COOKIES.get('user')
-        token = request.COOKIES.get('token')
-        r = requests.get("https://authb.agoraus1.egc.duckdns.org/auth/api/checkTokenUser?user=" + str(user) + "&token=" + str(token))
+        x = token.split(":")
+        r = requests.get("https://authb.agoraus1.egc.duckdns.org/api/index.php?method=checkTokenUser&user="+ str(x[0]) +"&token="+ str(token))
         json_autenticacion = r.json()
         result = False
         if json_autenticacion['valid'] is True:
@@ -27,46 +25,26 @@ def verify_user(request):
     return result
 
 
-def can_vote(request, id_poll):
+def can_vote(token):
     try:
-        user = request.COOKIES.get('user')
-        token = request.COOKIES.get('token')
-        cookies = dict(user=user, token=token)
-        r = requests.get("https://censos.agoraus1.egc.duckdns.org/ADMCensus/census/canVote.do?idVotacion=" + str(id_poll),
-                         cookies=cookies)
+        x = token.split(":")
+        r = requests.get("https://censos.agoraus1.egc.duckdns.org/census/canVote.do?idVotacion="+ str(token)+" &username= "+ str(x[0]))
         json_censo = r.json()
         result = False
-        if json_censo['result'] == "yes":
+        if json_censo['result'] == "si":
             result = True
     except ValueError:
         result = False
     return result
 
-
-def get_encryption_vote(vote):
-    json_vote = vote_as_json(vote)
-    json_string = str(json_vote)
-    try:
-        public_key = get_key_rsa(vote.id_poll)
-        if public_key is not False:
-            encrypt_vote = encrypt_rsa(json_string, public_key)
-        else:
-            encrypt_vote = False
-    except OverflowError:
-        encrypt_vote = False
-    return encrypt_vote
-
-
-def save_vote(encryption_vote, id_poll):
-    data = [('vote', encryption_vote), ('votation_id', id_poll)]
-    data = urllib.urlencode(data)
-    path = 'http://php-egc.rhcloud.com/vote.php'
-    req = urllib2.Request(path, data)
-    response = urllib2.urlopen(req)
-    response_data = json.load(response)
-    result = False
-    if response_data['msg'] == u'1':
-        result = True
+def save_vote(encryption_votes):
+    for vote in encryption_votes:
+        payload = {'token': vote.token, 'idPregunta': vote.idPregunta, 'voto': vote.voto.replace("\n",'')}
+        try:
+            r = requests.post("https://recuento.agoraus1.egc.duckdns.org/api/emitirVoto", data=payload)
+            result = True
+        except:
+            result = False
     return result
 
 
@@ -82,44 +60,52 @@ def get_poll(id_poll):
     return poll
 
 
-def get_user(request):
+def get_user(token):
     try:
-        username = request.COOKIES.get('user')
-        r = requests.get("https://authb.agoraus1.egc.duckdns.org/auth/api/getUser?user=" + username)
+        x = token.split(":")
+        r = requests.get("https://authb.agoraus1.egc.duckdns.org/auth/api/getUser?method=getUser&user="+ str(x[0]))
         json_auth = json.dumps(r.json())
-        user = json.loads(json_auth, object_hook=json_as_user)
+        user = json.json_as_user(json_auth)
     except ValueError:
         user = None
     return user
 
 
-def get_vote(poll, user, post_data):
-    answers = []
-    for question in poll.questions:
-        answer_question = post_data[str(question.id)]
-        a = {"question": question.text, "answer_question": answer_question}
-        answers.append(a)
+def get_vote(token, post_data):
+    votes = []
+    public_key = get_key_rsa()
+    for question in post_data:
+        if question!="id_poll":
 
-    vote = Vote()
-    vote.id = 1
-    vote.id_poll = poll.id
-    vote.age = user.age
-    vote.genre = user.genre
-    vote.autonomous_community = user.autonomous_community
-    vote.answers = answers
-    return vote
+            vote = Vote()
+            vote.idPregunta = question.replace('group_','')
+            vote.token = token
 
 
-def update_user(request, id_poll):
+            try:
+                if public_key is not None:
+                    encrypt_vote = encrypt_rsa(post_data[question], public_key)
+                else:
+                    encrypt_vote = None
+            except OverflowError:
+                encrypt_vote = False
+                votes = None
+
+            vote.voto = encrypt_vote
+
+            votes.append(vote)
+    return votes
+
+
+def update_user(token, id_poll):
     try:
-        user = request.COOKIES.get('user')
-        token = request.COOKIES.get('token')
-        cookies = dict(user=user, token=token)
-        r = requests.get("https://censos.agoraus1.egc.duckdns.org/ADMCensus/census/updateUser.do?idVotacion=" + str(id_poll),
-                         cookies=cookies)
+        x = token.split(":")
+
+        r = requests.get("https://censos.agoraus1.egc.duckdns.org/census/updateUser.do?idVotacion="+ str(id_poll)+" &tipoVotacion=abierto&username= "+ str(x[0]))
+
         json_censo = r.json()
         result = False
-        if json_censo['result'] == "yes":
+        if json_censo['result'] == "si":
             result = True
     except ValueError:
         result = False
@@ -161,7 +147,13 @@ def json_as_poll(json_poll):
 
 def json_as_user(json_auth):
     user = User()
-    user.__dict__.update(json_auth)
+    x = json.loads(json_auth)
+
+    user.username = x['username']
+    user.genre= x['genre']
+    user.autonomous_community= x['autonomous_community']
+    user.email= x['email']
+    user.age= x['age']
     return user
 
 
@@ -179,35 +171,19 @@ def vote_as_json(vote):
 
 def encrypt_rsa(message, public_key_loc):
     # cifra el mensaje y lo codifica a base64
-    key_decode = b64decode(public_key_loc)
-    key_perfect = importKey(key_decode, passphrase=None)
-    # Metodo de la libreria de verificacion para cifrar el voto con una clave publica
-    cryptos = subprocess.check_output(['java', '-jar', 'cabina_app/verification.jar', 'cipher', '%s' % message, '%s' % key_perfect])
-    crypto = cryptos.encode("base64")
-    return crypto
+    cryptos = subprocess.check_output(['java', '-jar', 'cabina_app/verification.jar', 'cipher', '%s' % message, '%s' % public_key_loc])
+    return cryptos
 
 
 def decrypt_rsa(crypto, private_key):
     key_decode = b64decode(private_key)
     key_perfect = importKey(key_decode, passphrase=None)
-    crypto = crypto.decode("base64")
     # Metodo de la libreria de verificacion para descifrar el voto con una clave privada
     return subprocess.check_output(['java', '-jar', 'cabina_app/verification.jar', 'decipher', '%s' % crypto, '%s' % key_perfect])
 
 
-def get_key_rsa(id_votacion):
-
-    #-----------------------------------FALTA URL DE VERIFICACIÓN
-
-
-    web = urllib2.urlopen("http://www.egcprueba.esy.es/getKeys.php?id=" + str(id_votacion))
-    result = False
-    try:
-        keys = json.load(web)
-        public = keys['Publickey']
-        if public is not None and public is not "":
-            result = public
-        return result
-    except ValueError:
-        return False
+def get_key_rsa():
+    url = 'https://recuento.agoraus1.egc.duckdns.org/api/clavePublica'
+    public_key = requests.get(url).text
+    return public_key
 
