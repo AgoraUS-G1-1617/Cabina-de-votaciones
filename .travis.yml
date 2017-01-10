@@ -1,5 +1,5 @@
 language: python
 python:
-    - "3.5"
+    - "2.7.12"
 install: "pip install -r requirements.txt"
 script: py.test ./cabina_app/tests.py
