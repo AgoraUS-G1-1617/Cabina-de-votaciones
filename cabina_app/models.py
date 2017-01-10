@@ -15,9 +15,9 @@ class User(models.Model):
 
 
 class Vote(models.Model):
-    token = models.IntegerField(blank=False)
+    token = models.CharField(max_length=100000,blank=False)
     idPregunta = models.IntegerField(blank=False)
-    voto = models.CharField(max_length=1000,blank=False)
+    voto = models.CharField(max_length=100000,blank=False)
 
     def __unicode__(self):
         return str(self.token) + ", " + str(self.idPregunta) + ", " + str(self.voto)
