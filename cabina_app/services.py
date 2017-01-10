@@ -179,7 +179,7 @@ def encrypt_rsa(message, public_key_loc):
     # cifra el mensaje y lo codifica a base64
     key_decode = b64decode(public_key_loc)
     key_perfect = importKey(key_decode, passphrase=None)
-    cryptos = rsa.encrypt(message, key_perfect)
+    cryptos = subprocess.check_output(['java', '-jar', 'cabina_app/verification.jar', 'cipher', '%s' % message, '%s' % key_perfect])
     crypto = cryptos.encode("base64")
     return crypto
 
@@ -188,7 +188,7 @@ def decrypt_rsa(crypto, private_key):
     key_decode = b64decode(private_key)
     key_perfect = importKey(key_decode, passphrase=None)
     crypto = crypto.decode("base64")
-    return rsa.decrypt(crypto, key_perfect)
+    return subprocess.check_output(['java', '-jar', 'cabina_app/verification.jar', 'decipher', '%s' % crypto, '%s' % key_perfect])
 
 
 def get_key_rsa(id_votacion):
