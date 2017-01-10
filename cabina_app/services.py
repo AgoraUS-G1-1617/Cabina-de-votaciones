@@ -40,11 +40,11 @@ def can_vote(token):
 
 def save_vote(encryption_votes):
     for vote in encryption_votes:
-        payload = {'token': vote.token, 'idPregunta': vote.idPregunta, 'voto': vote.voto}
+        payload = {'token': vote.token, 'idPregunta': vote.idPregunta, 'voto': vote.voto.replace("\n",'')}
         print payload
         try:
             r = requests.post("https://recuento.agoraus1.egc.duckdns.org/api/emitirVoto", data=payload)
-            print r
+            print r.json()
             result = True
         except:
             result = False
@@ -177,14 +177,12 @@ def vote_as_json(vote):
 def encrypt_rsa(message, public_key_loc):
     # cifra el mensaje y lo codifica a base64
     cryptos = subprocess.check_output(['java', '-jar', 'cabina_app/verification.jar', 'cipher', '%s' % message, '%s' % public_key_loc])
-    crypto = cryptos.encode("base64")
-    return crypto
+    return cryptos
 
 
 def decrypt_rsa(crypto, private_key):
     key_decode = b64decode(private_key)
     key_perfect = importKey(key_decode, passphrase=None)
-    crypto = crypto.decode("base64")
     # Metodo de la libreria de verificacion para descifrar el voto con una clave privada
     return subprocess.check_output(['java', '-jar', 'cabina_app/verification.jar', 'decipher', '%s' % crypto, '%s' % key_perfect])
 
