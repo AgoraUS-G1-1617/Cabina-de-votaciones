@@ -6,7 +6,7 @@ import os
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "cabina_agora_us.settings")
 #from django.test import TestCase
 import unittest
-from services import json_as_poll, get_poll
+from cabina_app.services import json_as_poll, get_poll
 #from cabina_app.dbConnect import *
 #from cabina_app.models import *
 
