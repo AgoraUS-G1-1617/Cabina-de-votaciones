@@ -43,12 +43,12 @@ def save_vote(encryption_votes):
         payload = {'token': vote.token, 'idPregunta': vote.idPregunta, 'voto': vote.voto}
         print payload
         try:
-            r = requests.post("https://beta.recuento.agoraus1.egc.duckdns.org/api/emitirVoto", data=payload)
+            r = requests.post("https://recuento.agoraus1.egc.duckdns.org/api/emitirVoto", data=payload)
             print r
             result = True
         except:
             result = False
-    return 0
+    return result
 
 
 def get_poll(id_poll):

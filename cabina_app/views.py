@@ -53,7 +53,7 @@ def cabinarecepcion(request):
     error = True
 
     if request.method == 'POST':
-        token = "alerodrom:3A5ca38d5a73c0f04c4f7cc1c35acc7a47"
+        token = "alerodrom:5ca38d5a73c0f04c4f7cc1c35acc7a47"
 
         post_data = request.POST
 
