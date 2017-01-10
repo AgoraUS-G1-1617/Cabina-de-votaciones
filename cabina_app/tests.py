@@ -1,7 +1,5 @@
 """
-This file demonstrates writing tests using the unittest module. These will pass
-when you run "manage.py test".
-
+This file demonstrates writing tests using the unittest module and py.test.
 Replace this with more appropriate tests for your application.
 """
 import os
@@ -23,13 +21,17 @@ class BasicTests(unittest.TestCase):
         self.assertEqual(1 + 1,2)
 
     def test_poll(self):
+        expectedId = 1
         """
         Test that the Poll is correctly recieved from 'Recuento y Modificacion'
         """
-        poll = get_poll(1)
-        self.assertEqual(poll.id, 1)
+        poll = get_poll(expectedId)
+        self.assertEqual(poll.id, expectedId)
 
-
-
-
-
+    def test_negative_poll(self):
+        """
+        Test that an incorret Id raises an Exception of kind KeyError
+        """
+        with self.assertRaises(KeyError):
+            poll = get_poll(6546546)
+            self.assertIsNone(poll.id)
