@@ -150,6 +150,7 @@ def encrypt_rsa(message, public_key_loc):
     # cifra el mensaje y lo codifica a base64
     key_decode = b64decode(public_key_loc)
     key_perfect = importKey(key_decode, passphrase=None)
+    # Metodo de la libreria de verificacion para cifrar el voto con una clave publica
     cryptos = subprocess.check_output(['java', '-jar', 'cabina_app/verification.jar', 'cipher', '%s' % message, '%s' % key_perfect])
     crypto = cryptos.encode("base64")
     return crypto
@@ -159,6 +160,7 @@ def decrypt_rsa(crypto, private_key):
     key_decode = b64decode(private_key)
     key_perfect = importKey(key_decode, passphrase=None)
     crypto = crypto.decode("base64")
+    # Metodo de la libreria de verificacion para descifrar el voto con una clave privada
     return subprocess.check_output(['java', '-jar', 'cabina_app/verification.jar', 'decipher', '%s' % crypto, '%s' % key_perfect])
 
 
