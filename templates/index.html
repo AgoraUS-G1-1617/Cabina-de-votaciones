@@ -127,6 +127,7 @@
 					while(i < document.getElementsByName("group_"+pregunta).length){
 						if(respuesta == document.getElementsByName("group_"+pregunta)[i].value){
 							var opcion = document.getElementsByName(pregunta)[i];
+							$("#input"+pregunta).prop('checked', true);
 							opcion.className += " btn-info";
 							$("#" + pregunta).removeClass("panel-danger");
 							$("#" + pregunta).addClass("panel-success");
