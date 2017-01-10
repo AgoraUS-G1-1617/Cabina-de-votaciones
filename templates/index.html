@@ -24,7 +24,7 @@
 	            <input type="hidden" name="id_poll" value="{{ poll.id }}"/>
 	            <div class="row">
 	            	<div class="col-md-12">
-	            		<!-- <div class="alert alert-danger" id="validation_warning" style="display:none;"> 
+	            		<!-- <div class="alert alert-danger" id="validation_warning" style="display:none;">
 	            			<h4>Tienes que votar todas las preguntas</h4>
 	            		</div> -->
 	            	</div>
@@ -39,24 +39,28 @@
 	            {% for question in questions %}
 	            	<div class="row">
 	            		<div class="col-md-12">
-		            		<div class="panel panel-default" id="{{ question.id }}">
+		            		<div class="panel panel-default" id="{{ question.question_id }}">
 		            			<div class="panel-heading">
 		            				<h3 class="panel-title">Pregunta nº {{ forloop.counter }}</h3>
-		            				<div class="qstatus_ko" id="qstatus_ko_{{ question.id }}"><span class="glyphicon glyphicon-remove text-danger"></span> Aún no has votado</div>
-		            				<div class="qstatus_ok" id="qstatus_ok_{{ question.id }}"><span class="glyphicon glyphicon-ok text-success"></span> Ya has votado</div>
+		            				<div class="qstatus_ko" id="qstatus_ko_{{ question.question_id }}"><span class="glyphicon glyphicon-remove text-danger"></span> Aún no has votado</div>
+		            				<div class="qstatus_ok" id="qstatus_ok_{{ question.question_id }}"><span class="glyphicon glyphicon-ok text-success"></span> Ya has votado</div>
 								</div>
 								<div class="panel-body">
 									<p>{{ question.text }}</p>
 									<div class="row">
-										<div class="col-md-6 col-xs-12">
-											<button type="button" class="btn btn-large btn-default btn-voto btn-block btn_{{ question.id }}"  name="{{ question.id }}" value="si"><span class="glyphicon glyphicon-thumbs-up"></span> Sí</button>
-											<input class="radiocabina" name="{{ question.id }}" id="input_si{{ question.id }}" value="SI" required="required" type="radio">
-										</div>
-										
-										<div class="col-md-6 col-xs-12">
-											<button type="button" class="btn btn-large btn-default btn-voto btn-block btn_{{ question.id }}"  name="{{ question.id }}" value="no"><span class="glyphicon glyphicon-thumbs-down"></span> No</button>
-											<input class="radiocabina" name="{{ question.id }}" id="input_no{{ question.id }}" value="NO"  required="required" type="radio">
-										</div>
+										<div class="btn-group" data-toggle="buttons">
+
+										{% for answer in question.answer_set.all %}
+
+											<div class="col-md-6 col-xs-12">
+
+											 <label class="col-md-6 col-xs-12 btn btn-large btn-default btn-voto btn-block btn_{{ question.question_id }}"  name="{{ question.question_id }}" value="{{ answer.answer_id}}">
+												<input class="radiocabina" type="radio" name="group_{{ question.question_id }}" id="input{{ question.question_id }}" value="{{ answer.answer_id}}" autocomplete="off"> {{ answer.text }} <br>
+											  </label>
+												</div>
+
+											{% endfor %}
+											</div>
 									</div>
 								</div>
 							</div>
@@ -80,7 +84,7 @@
 
 			$(".btn_" +related_id).removeClass("btn-info");
 
-			$("#input_"+$(this).val()+related_id).prop('checked', true);
+			$("#input"+$(this).val()+related_id).prop('checked', true);
 			$(this).addClass("btn btn-info");
 			$("#" + related_id).removeClass("panel-danger");
 			$("#" + related_id).addClass("panel-success");
@@ -88,7 +92,6 @@
 			$("#qstatus_ok_" + related_id).show();
 
 			encodeCookie(related_id, $(this).val());
-			console.log(document.cookie);
 		});
 		$(function(){
 			$(".panel").addClass("panel-danger");
@@ -100,46 +103,37 @@
 		function encodeCookie(questionId, option){
 			var votacion = document.cookie.split(';');
 			var encontrado = false;
-
 			for(var j=1;j<votacion.length;j++){
 				var pregunta = votacion[j].split('=')[0];
 				var respuesta = votacion[j].split('=')[1];
-
 				if(pregunta == questionId){
 					document.cookie = pregunta+"="+option;
 					encontrado = true;
 				}
 			}
-
 			if(!encontrado){
 				document.cookie = questionId+"="+option;
 			}
 		};
-
 		function inicio(){
 			var votacion = document.cookie.split(';');
 			var id_poll = votacion[0].split('=')[1];
-
 			if(id_poll == document.getElementsByName("id_poll")[0].value){
 				for(var j=1;j<votacion.length;j++){
 					var pregunta = votacion[j].split('=')[0];
 					pregunta = pregunta.trim();
 					var respuesta = votacion[j].split('=')[1];
-					if(respuesta == "si"){
-						var opcion = document.getElementsByName(pregunta)[0];
-						opcion.className += " btn-info";
-						$("#" + pregunta).removeClass("panel-danger");
-						$("#" + pregunta).addClass("panel-success");
-						$("#qstatus_ko_" + pregunta).hide();
-						$("#qstatus_ok_" + pregunta).show();
-					}
-					else if(respuesta == "no"){
-						var opcion = document.getElementsByName(pregunta)[2];
-						opcion.className += " btn-info";
-						$("#" + pregunta).removeClass("panel-danger");
-						$("#" + pregunta).addClass("panel-success");
-						$("#qstatus_ko_" + pregunta).hide();
-						$("#qstatus_ok_" + pregunta).show();
+					var i = 0;
+					while(i < document.getElementsByName(pregunta).length){
+						if(respuesta == document.getElementsByName(pregunta)[i].value){
+							var opcion = document.getElementsByName(pregunta)[i];
+							opcion.className += " btn-info";
+							$("#" + pregunta).removeClass("panel-danger");
+							$("#" + pregunta).addClass("panel-success");
+							$("#qstatus_ko_" + pregunta).hide();
+							$("#qstatus_ok_" + pregunta).show();
+						}
+						i += 2;
 					}
 				}
 			}
@@ -162,7 +156,10 @@
 
 				// check only if radio group exists
 				if( $radioGroup.size() ){
-					if( !$radioGroup.is(':checked') ) error = 1;
+
+					if( !$radioGroup.is(':checked')){
+						error = 1;
+					}
 				}
 			});
 			// handle error
