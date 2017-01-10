@@ -91,7 +91,7 @@
 			$("#qstatus_ko_" + related_id).hide();
 			$("#qstatus_ok_" + related_id).show();
 
-			encodeCookie(related_id, $(this).val());
+			encodeCookie(related_id, $(this).attr('value'));
 		});
 		$(function(){
 			$(".panel").addClass("panel-danger");
@@ -124,8 +124,8 @@
 					pregunta = pregunta.trim();
 					var respuesta = votacion[j].split('=')[1];
 					var i = 0;
-					while(i < document.getElementsByName(pregunta).length){
-						if(respuesta == document.getElementsByName(pregunta)[i].value){
+					while(i < document.getElementsByName("group_"+pregunta).length){
+						if(respuesta == document.getElementsByName("group_"+pregunta)[i].value){
 							var opcion = document.getElementsByName(pregunta)[i];
 							opcion.className += " btn-info";
 							$("#" + pregunta).removeClass("panel-danger");
@@ -133,7 +133,7 @@
 							$("#qstatus_ko_" + pregunta).hide();
 							$("#qstatus_ok_" + pregunta).show();
 						}
-						i += 2;
+						i += 1;
 					}
 				}
 			}
