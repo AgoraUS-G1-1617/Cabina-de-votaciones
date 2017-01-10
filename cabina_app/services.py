@@ -5,17 +5,19 @@ import urllib
 import urllib2
 from Crypto.PublicKey.RSA import importKey
 
+import subprocess
+
 import requests
 import rsa
 
-from cabina_app.models import User, Poll, Vote
+from cabina_app.models import User, Poll, Vote, Question, Answer
 
 
 def verify_user(request):
     try:
         user = request.COOKIES.get('user')
         token = request.COOKIES.get('token')
-        r = requests.get("https://beta.authb.agoraus1.egc.duckdns.org/auth/api/checkTokenUser?user=" + str(user) + "&token=" + str(token))
+        r = requests.get("https://authb.agoraus1.egc.duckdns.org/auth/api/checkTokenUser?user=" + str(user) + "&token=" + str(token))
         json_autenticacion = r.json()
         result = False
         if json_autenticacion['valid'] is True:
@@ -70,9 +72,11 @@ def save_vote(encryption_vote, id_poll):
 
 def get_poll(id_poll):
     try:
-        r = requests.get('https://cavotacion.agoraus1.egc.duckdns.org/vote/survey.do?id=' + str(id_poll))
+        r = requests.get('https://recuento.agoraus1.egc.duckdns.org/api/verVotacion?idVotacion='+ str(id_poll)+'&detallado=si' )
+        
         json_poll = json.dumps(r.json())
-        poll = json.loads(json_poll, object_hook=json_as_poll)
+        #poll = json.loads(json_poll, object_hook=json_as_poll)
+        poll = json_as_poll(json_poll)
     except ValueError:
         poll = None
     return poll
@@ -81,7 +85,7 @@ def get_poll(id_poll):
 def get_user(request):
     try:
         username = request.COOKIES.get('user')
-        r = requests.get("https://beta.authb.agoraus1.egc.duckdns.org/auth/api/getUser?user=" + username)
+        r = requests.get("https://authb.agoraus1.egc.duckdns.org/auth/api/getUser?user=" + username)
         json_auth = json.dumps(r.json())
         user = json.loads(json_auth, object_hook=json_as_user)
     except ValueError:
@@ -124,7 +128,34 @@ def update_user(request, id_poll):
 
 def json_as_poll(json_poll):
     poll = Poll()
-    poll.__dict__.update(json_poll)
+    x = json.loads(json_poll)
+
+    poll.id = x['votacion']['id_votacion']
+    poll.title = x['votacion']['titulo']
+    poll.endDate = x['votacion']['fecha_cierre'][0:10]
+    poll.startDate = x['votacion']['fecha_creacion'][0:10]
+    poll.description = x['votacion']['titulo']
+
+
+    for pregunta in x['votacion']['preguntas']:
+        question = Question()
+        question.question_id = pregunta['id_pregunta']
+        question.text = pregunta['texto_pregunta']
+        question.poll_reference = poll
+
+        for opcion in pregunta['opciones']:
+            answer = Answer()
+            answer.answer_id = opcion['id_opcion']
+            answer.text = opcion['texto_opcion']
+            answer.question_reference = question
+
+            question.answer_set.add(answer)
+
+
+        poll.question_set.add(question)
+
+    poll.save()
+
     return poll
 
 
@@ -150,7 +181,8 @@ def encrypt_rsa(message, public_key_loc):
     # cifra el mensaje y lo codifica a base64
     key_decode = b64decode(public_key_loc)
     key_perfect = importKey(key_decode, passphrase=None)
-    cryptos = rsa.encrypt(message, key_perfect)
+    # Metodo de la libreria de verificacion para cifrar el voto con una clave publica
+    cryptos = subprocess.check_output(['java', '-jar', 'cabina_app/verification.jar', 'cipher', '%s' % message, '%s' % key_perfect])
     crypto = cryptos.encode("base64")
     return crypto
 
@@ -159,7 +191,8 @@ def decrypt_rsa(crypto, private_key):
     key_decode = b64decode(private_key)
     key_perfect = importKey(key_decode, passphrase=None)
     crypto = crypto.decode("base64")
-    return rsa.decrypt(crypto, key_perfect)
+    # Metodo de la libreria de verificacion para descifrar el voto con una clave privada
+    return subprocess.check_output(['java', '-jar', 'cabina_app/verification.jar', 'decipher', '%s' % crypto, '%s' % key_perfect])
 
 
 def get_key_rsa(id_votacion):

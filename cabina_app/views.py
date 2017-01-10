@@ -7,8 +7,9 @@ from cabina_app.dbConnect import *
 
 @api_view(['GET'])
 def recibe_id_votacion(request, id_poll = None):
+        informacion = None
         if(id_poll is None):
-            informacion = "No se ha recibido ninguna votacion"
+            informacion = "Error: No se ha recibido ninguna votacion"
             return render(request, "informacion.html", {'informacion': informacion, 'error': True})
         # Comprobar que el identificador de la votacion es numerico
         try:
@@ -16,21 +17,21 @@ def recibe_id_votacion(request, id_poll = None):
         except ValueError:
             informacion = "El identificador de la votación es erronea"
             return render(request, "informacion.html", {'informacion': informacion, 'error': True})
-
+        '''
         # Comprobar que dicho usuario autenticado es valido
         if not verify_user(request):
             informacion = "El usuario es erroneo, autenticate de nuevo"
         # Comprobar que el usuario autenticado puede votar en dicha votacion
         elif not can_vote(request, id_poll):
             informacion = "Usted no puede votar en esta votación"
-        else:
+        else:'''
             # Construir la votacion
-            poll = get_poll(id_poll)
-            if poll is None:
-                informacion = "El identificador de la votación es erronea"
+        poll = get_poll(id_poll)
+        if poll is None:
+            informacion = "El identificador de la votación es erronea"
 
         if informacion is None:
-            respuesta = render(request, "index.html", {'poll': poll, 'questions': poll.questions})
+            respuesta = render(request, "index.html", {'poll': poll, 'questions': poll.question_set.all()})
         else:
             respuesta =  render(request, "informacion.html", {'informacion': informacion, 'error': True})
         return respuesta
