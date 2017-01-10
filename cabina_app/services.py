@@ -22,7 +22,6 @@ def verify_user(token):
             result = True
     except ValueError:
         result = False
-    print result
     return result
 
 
@@ -41,10 +40,8 @@ def can_vote(token):
 def save_vote(encryption_votes):
     for vote in encryption_votes:
         payload = {'token': vote.token, 'idPregunta': vote.idPregunta, 'voto': vote.voto.replace("\n",'')}
-        print payload
         try:
             r = requests.post("https://recuento.agoraus1.egc.duckdns.org/api/emitirVoto", data=payload)
-            print r.json()
             result = True
         except:
             result = False
@@ -103,10 +100,8 @@ def get_vote(token, post_data):
 def update_user(token, id_poll):
     try:
         x = token.split(":")
-        print "hola"
 
         r = requests.get("https://censos.agoraus1.egc.duckdns.org/census/updateUser.do?idVotacion="+ str(id_poll)+" &tipoVotacion=abierto&username= "+ str(x[0]))
-        print r.json()
 
         json_censo = r.json()
         result = False
