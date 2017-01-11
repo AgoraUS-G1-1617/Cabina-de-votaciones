@@ -42,7 +42,7 @@
 		            		<div class="panel panel-default" id="{{ question.question_id }}">
 		            			<div class="panel-heading">
 		            				<h3 class="panel-title">Pregunta nº {{ forloop.counter }}</h3>
-		            				<div class="qstatus_ko" id="qstatus_ko_{{ question.question_id }}"><span class="glyphicon glyphicon-remove text-danger"></span> Aún no has votado</div>
+		            				<div class="qstatus_ko" id="qstatus_ko_{{ question.question_id }}"><span class="glyphicon glyphicon-remove text-danger"></span> Aún no has votado, tienes hasta el {{ poll.endDate }}</div>
 		            				<div class="qstatus_ok" id="qstatus_ok_{{ question.question_id }}"><span class="glyphicon glyphicon-ok text-success"></span> Ya has votado</div>
 								</div>
 								<div class="panel-body">
